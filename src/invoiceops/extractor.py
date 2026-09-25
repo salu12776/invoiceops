@@ -42,6 +42,12 @@ Rules:
 - `date` is the issue date in YYYY-MM-DD. Ignore due dates. If the document states a date format
   (e.g. DD/MM/YYYY), follow it.
 - `currency` is an ISO code (PKR for Rs, USD for $, EUR for €).
+- `subtotal` is the items or main charges before discount, tax and extra charges.
+- `other_charges` lists EVERY other amount added on top (shipping, delivery, service charge,
+  fees, duties, surcharges) as separate {label, amount} entries, exactly as printed. Do NOT add them up yourself; the system does the arithmetic. Empty list if there are none.
+- If several totals are printed (e.g. before / after the due date), `total` is the amount payable
+  by the due date.
+- `invoice_number` without prefixes such as "#" or "No.".
 - Numbers are plain numbers: no currency symbols, no thousands separators.
 - If a field is not on the document, use null. Never guess.
 - If this is not an invoice, bill or receipt, set is_invoice to false and leave the rest empty.

@@ -84,16 +84,23 @@ def _check_math(d: InvoiceData, flags: list[Flag]) -> None:
     if d.total is None:
         flags.append(Flag("missing_fields", "Total not found"))
         return
+    extra = d.other_total  # Python adds the listed charges; the model never does arithmetic
     if d.subtotal is not None:
-        expected = d.subtotal - (d.discount or 0) + (d.tax or 0)
+        expected = d.subtotal - (d.discount or 0) + (d.tax or 0) + extra
         if abs(expected - d.total) > MONEY_TOLERANCE:
+            listed = " + ".join(f"{c.label} {c.amount:,.2f}" for c in d.other_charges) or "none"
             flags.append(Flag("math_mismatch",
-                              f"subtotal - discount + tax = {expected:,.2f} but printed total is {d.total:,.2f}"))
+                              f"subtotal - discount + tax + other charges ({listed}) = {expected:,.2f} "
+                              f"but printed total is {d.total:,.2f}"))
     amounts = [li.amount for li in d.line_items if li.amount is not None]
     if d.subtotal is not None and amounts and len(amounts) == len(d.line_items):
-        if abs(sum(amounts) - d.subtotal) > MONEY_TOLERANCE:
+        # Some documents list every charge as a line, so the lines may add up to the subtotal,
+        # to subtotal + extra charges, or to the grand total. Any of these is consistent.
+        items = sum(amounts)
+        ok = [d.subtotal, d.subtotal + extra, d.total]
+        if all(abs(items - x) > MONEY_TOLERANCE for x in ok):
             flags.append(Flag("math_mismatch",
-                              f"line items add up to {sum(amounts):,.2f} but subtotal is {d.subtotal:,.2f}"))
+                              f"line items add up to {items:,.2f} but subtotal is {d.subtotal:,.2f}"))
 
 
 def _check_date(d: InvoiceData, flags: list[Flag], today: date) -> None:

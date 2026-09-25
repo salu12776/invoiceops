@@ -152,9 +152,9 @@ def exporter(state: State) -> dict[str, Any]:
         w = csv.writer(f)
         if new_file:
             w.writerow(["source", "vendor", "invoice_number", "date", "currency", "subtotal",
-                        "discount", "tax", "total", "approved_by"])
+                        "discount", "tax", "other_charges", "total", "approved_by"])
         w.writerow([state["source"], data.vendor, data.invoice_number, data.date, data.currency,
-                    data.subtotal, data.discount, data.tax, data.total,
+                    data.subtotal, data.discount, data.tax, data.other_total, data.total,
                     "human" if state.get("review") else "auto"])
     Ledger(LEDGER_PATH).add(data, state["source"])
     return {"steps": _step(state, "exporter"), "status": "exported"}

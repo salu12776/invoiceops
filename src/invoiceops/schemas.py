@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class LineItem(BaseModel):
@@ -10,6 +10,11 @@ class LineItem(BaseModel):
     quantity: float | None = Field(default=None, description="Quantity or hours")
     unit_price: float | None = Field(default=None, description="Price per unit")
     amount: float | None = Field(default=None, description="Line total as printed")
+
+
+class Charge(BaseModel):
+    label: str = Field(description="Name of the charge as printed, e.g. Shipping, FPA, TV fee")
+    amount: float = Field(description="Amount as printed, a positive number")
 
 
 class InvoiceData(BaseModel):
@@ -21,5 +26,25 @@ class InvoiceData(BaseModel):
     subtotal: float | None = Field(default=None, description="Sum of line items before discount and tax")
     discount: float | None = Field(default=None, description="Discount amount as a positive number, 0 if none")
     tax: float | None = Field(default=None, description="Tax / GST / VAT amount, 0 if none")
+    other_charges: list[Charge] = Field(
+        default_factory=list,
+        description="Every other amount added on top of subtotal and tax (shipping, delivery, service charge, "
+                    "fees, duties, surcharges), each listed separately. Do not add them up. Empty if none",
+    )
     total: float | None = Field(default=None, description="Final total or amount due, exactly as printed")
     line_items: list[LineItem] = Field(default_factory=list)
+
+    @field_validator("other_charges", mode="before")
+    @classmethod
+    def _accept_number(cls, v):
+        """Be forgiving: if a model still sends one number (or null), turn it into a list."""
+        if v is None:
+            return []
+        if isinstance(v, (int, float)):
+            return [{"label": "Other charges", "amount": v}] if v else []
+        return v
+
+    @property
+    def other_total(self) -> float:
+        """Python adds the charges up, not the model."""
+        return round(sum(c.amount for c in self.other_charges), 2)
