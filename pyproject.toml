@@ -1,0 +1,28 @@
+[project]
+name = "invoiceops"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Muhammad Salman", email = "miansalman2412@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.141.1",
+    "google-genai>=2.25.0",
+    "langchain-core>=1.6.5",
+    "langgraph>=1.2.12",
+    "pillow>=12.3.0",
+    "pydantic>=2.13.5",
+    "pymupdf>=1.28.2",
+    "python-dotenv>=1.2.3",
+    "tenacity>=9.1.4",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+invoiceops = "invoiceops:main"
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
