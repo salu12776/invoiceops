@@ -1,0 +1,6 @@
+file,is_invoice,vendor,invoice_number,date,currency,subtotal,discount,tax,total,line_items,expected_flags,notes
+real_01_electricity_bill.pdf,True,Ravi Power Distribution Co. (Sample),07 14215 0098321,2026-09-12,PKR,,0.00,,22541.00,6,math_mismatch,"Total = payable WITHIN due date (22,541), not after (24,795). Date = issue date 12-09-2026, not due date. Extra charges (FPA, duty, TV fee) don't fit subtotal+tax, so a math flag is expected."
+real_02_hardware_cash_memo.jpg,True,Madina Hardware Store,2317,2026-09-21,PKR,5800.00,0.00,0.00,5800.00,4,,"Handwritten-style cash memo photo, date 21/9/26, no tax. Should be Booked."
+real_03_online_order.pdf,True,Bazaarly Online (Sample),BZ-58213407,2026-09-18,PKR,7129.00,700.00,0.00,6628.00,3,math_mismatch,"Shipping fee Rs 199 has no field in the schema: 7129 - 700 = 6429, not 6628. Invoice date 18 Sep, not order date 16 Sep."
+real_04_restaurant_receipt.jpg,True,Karahi Point (Sample),004512,2026-09-23,PKR,3660.00,0.00,585.60,4245.60,5,,"Restaurant receipt photo with GST 16%. Everything adds up. Should be Booked."
+real_05_quotation.pdf,False,,,,,,,,,0,not_invoice,"A price quotation, not a bill ('No payment is due'). Correct result: rejected as not_invoice. If it gets booked, that's a real weakness to fix."
